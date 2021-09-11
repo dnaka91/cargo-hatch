@@ -1,0 +1,23 @@
+Welcome to {{ project_name }}
+
+{% if awesome -%}
+{% if sure -%}
+Here, have some **AWESOME**!
+{% else -%}
+Make up your MIND!
+{% endif -%}
+{% else -%}
+You're BOOOORRIIIIIINNNG!
+{% endif -%}
+
+----------
+
+Name:    {{ name }}
+Country: {{ country }}
+Animal:  {{ animal }}
+Age:     {{ age }}
+Money:   {{ money }}
+
+Crate type: {{ crate_type }}
+Is bin:     {{ crate_bin }}
+Is lib:     {{ crate_lib }}

@@ -1,0 +1,41 @@
+[awesome]
+type = "bool"
+description = "Do you want awesome?"
+default = true
+
+[sure]
+type = "bool"
+description = "Are you sure?"
+default = false
+
+[aether]
+type = "bool"
+description = "Want some aether?"
+
+[name]
+type = "string"
+description = "What's your name?"
+
+[country]
+type = "string"
+description = "Where do you live?"
+default = "Florpsylvania"
+
+[animal]
+type = "list"
+description = "What's your favorite animal?"
+values = ["cat", "dog", "turtle"]
+default = "dog"
+
+[age]
+type = "number"
+description = "How old are you?"
+min = 0
+max = 101
+
+[money]
+type = "number"
+description = "What's your amount of cash?"
+min = 1000
+max = 5000
+default = 2000

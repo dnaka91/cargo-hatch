@@ -1,0 +1,6 @@
+{
+  "rocket": {
+    "speed": {{ speed }},
+    "legal": {{ legal }}
+  }
+}

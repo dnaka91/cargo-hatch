@@ -1,0 +1,9 @@
+[speed]
+type = "float"
+description = "Speed of the rocket"
+min = 0.0
+max = 10000.0
+
+[legal]
+type = "bool"
+description = "Is the takeof legal?"
