@@ -6,11 +6,13 @@ use std::{
 use anyhow::{Context, Result};
 use camino::{Utf8Path, Utf8PathBuf};
 use ignore::WalkBuilder;
+use mime_guess::mime;
 use tera::{Context as TeraContext, Tera};
 
 pub struct RepoFile {
     path: Utf8PathBuf,
     name: Utf8PathBuf,
+    template: bool,
 }
 
 pub fn collect_files(dir: &Utf8Path) -> Result<Vec<RepoFile>> {
@@ -39,6 +41,7 @@ pub fn collect_files(dir: &Utf8Path) -> Result<Vec<RepoFile>> {
             files.push(RepoFile {
                 path: path.to_owned(),
                 name: name.to_owned(),
+                template: !is_binary(name),
             });
         }
     }
@@ -46,24 +49,42 @@ pub fn collect_files(dir: &Utf8Path) -> Result<Vec<RepoFile>> {
     Ok(files)
 }
 
+fn is_binary(path: &Utf8Path) -> bool {
+    let mime = mime_guess::from_path(path).first_or_text_plain();
+
+    match mime.type_() {
+        mime::AUDIO | mime::FONT | mime::IMAGE | mime::VIDEO => true,
+        mime::APPLICATION => matches!(mime.subtype(), mime::OCTET_STREAM | mime::PDF),
+        _ => false,
+    }
+}
+
 pub fn render(files: Vec<RepoFile>, context: &TeraContext, target: &Utf8Path) -> Result<()> {
     let tera = {
         let mut tera = Tera::default();
-        tera.add_template_files(files.iter().map(|f| (&f.path, Some(&f.name))))
-            .context("failed loading templates")?;
+        tera.add_template_files(
+            files
+                .iter()
+                .filter_map(|f| f.template.then(|| (&f.path, Some(&f.name)))),
+        )
+        .context("failed loading templates")?;
         tera
     };
 
     fs::create_dir_all(target)?;
 
-    for file in files.into_iter().map(|f| f.name) {
-        if let Some(parent) = file.parent() {
+    for file in files {
+        if let Some(parent) = file.name.parent() {
             fs::create_dir_all(target.join(parent))?;
         }
 
-        let mut out = BufWriter::new(File::create(target.join(&file))?);
-        tera.render_to(file.as_str(), context, &mut out)?;
-        out.flush()?;
+        if file.template {
+            let mut out = BufWriter::new(File::create(target.join(&file.name))?);
+            tera.render_to(file.name.as_str(), context, &mut out)?;
+            out.flush()?;
+        } else {
+            fs::copy(file.path, target.join(file.name))?;
+        }
     }
 
     Ok(())
