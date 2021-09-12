@@ -21,3 +21,5 @@ Money:   {{ money }}
 Crate type: {{ crate_type }}
 Is bin:     {{ crate_bin }}
 Is lib:     {{ crate_lib }}
+
+Favorite food: {{ food | join(sep=", ") }}

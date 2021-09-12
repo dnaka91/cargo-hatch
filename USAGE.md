@@ -295,6 +295,36 @@ What's your favorite animal?:
 * fish
 ```
 
+#### Multi-lists
+
+Multi-lists are very similar to normal lists but allow to pick multiple items at once. Again,
+default values must all be part of the possible values or an error will be printed. Individual
+elements can be (un-)selected with the spacebar or tab.
+
+```toml
+[features]
+type = "multi_list"
+description = "Which server features would you like to enable?"
+values = [
+    "auth",
+    "compression",
+    "graceful-shutdown",
+    "logging",
+]
+default = [
+    "graceful-shutdown",
+    "logging",
+]
+```
+
+```txt
+Which server features would you like to enable?:
+  [ ] auth
+  [ ] compression
+* [x] graceful-shutdown
+  [x] logging
+```
+
 ## Exclude files with `.hatchignore`
 
 The `.hatchignore` file is identical to a `.gitignore` file and supports the same patterns. It

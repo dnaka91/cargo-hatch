@@ -1,4 +1,4 @@
-use std::{fmt::Display, fs, iter::FromIterator, str::FromStr};
+use std::{collections::HashSet, fmt::Display, fs, iter::FromIterator, str::FromStr};
 
 use anyhow::{bail, Context, Result};
 use camino::Utf8Path;
@@ -10,12 +10,13 @@ use serde::{Deserialize, Serialize};
 use tera::Context as TeraContext;
 
 use self::{
-    bool_reader::BoolReader, list_reader::ListReader, number_reader::NumberReader,
-    string_reader::StringReader,
+    bool_reader::BoolReader, list_reader::ListReader, multi_list_reader::MultiListReader,
+    number_reader::NumberReader, string_reader::StringReader,
 };
 
 mod bool_reader;
 mod list_reader;
+mod multi_list_reader;
 mod number_reader;
 mod string_reader;
 
@@ -48,6 +49,7 @@ pub enum SettingType {
     Number(NumberSetting<i64>),
     Float(NumberSetting<f64>),
     List(ListSetting),
+    MultiList(MultiListSetting),
 }
 
 #[derive(Deserialize)]
@@ -77,6 +79,12 @@ pub struct ListSetting {
     default: Option<String>,
 }
 
+#[derive(Deserialize)]
+pub struct MultiListSetting {
+    values: IndexSet<String>,
+    default: Option<HashSet<String>>,
+}
+
 impl RepoSetting {
     /// Check the setting for invalid values and return a error message describing the problem if
     /// an invalid configuration was found.
@@ -90,6 +98,14 @@ impl RepoSetting {
                 default.as_ref().and_then(|default| {
                     (!values.contains(default))
                         .then(|| "default value isn't part of the possible values")
+                })
+            }
+            SettingType::MultiList(MultiListSetting { values, default }) => {
+                default.as_ref().and_then(|default| {
+                    default
+                        .iter()
+                        .any(|def| !values.contains(def))
+                        .then(|| "one of the default values isn't part of the possible values")
                 })
             }
         }
@@ -253,6 +269,12 @@ pub fn fill_context(ctx: &mut TeraContext, settings: RepoSettings) -> Result<()>
             }
             SettingType::List(value) => {
                 let value = ListReader::new(value).read(&setting.description)?;
+
+                ctx.try_insert(name, &value)
+                    .context("failed adding value to context")?;
+            }
+            SettingType::MultiList(value) => {
+                let value = MultiListReader::new(value).read(&setting.description)?;
 
                 ctx.try_insert(name, &value)
                     .context("failed adding value to context")?;

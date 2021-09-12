@@ -39,3 +39,13 @@ description = "What's your amount of cash?"
 min = 1000
 max = 5000
 default = 2000
+
+[food]
+type = "multi_list"
+description = "What kind of food you like?"
+values = [
+    "American",
+    "French",
+    "Chinese",
+    "Japanese",
+]

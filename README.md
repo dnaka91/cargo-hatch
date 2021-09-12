@@ -20,7 +20,8 @@ The main differences are:
   and treats it as template making it easy to test templates or have local private templates, Git
   or not.
 - **More argument types**. Cargo hatch tries to provide a broader selection of input types,
-  currently including booleans, integers, floating point numbers, strings and lists (of strings).
+  currently including booleans, integers, floating point numbers, strings, lists (of strings) and
+  multi-lists (of strings).
 - **Tera template engine**. Cargo hatch uses the [Tera] template engine, providing a very
   Jinja2-ish syntax and if you use the Zola static-site-generator, you may already be familiar with
   it.
