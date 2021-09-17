@@ -18,11 +18,12 @@ camino = { version = "1.0.9", features = ["serde1"] }
 clap = { version = "3.1.18", features = ["derive"] }
 clap_complete = "3.1.4"
 crates-index = { version = "0.18.8", default-features = false }
-crossterm = "0.23.2"
+crossterm = "0.21.0"
 directories = "4.0.1"
 git2 = "0.14.4"
 ignore = "0.4.18"
 indexmap = { version = "1.8.2", features = ["serde-1"] }
+inquire = "0.2.1"
 mime_guess = "2.0.4"
 num-traits = "0.2.15"
 semver = "1.0.9"

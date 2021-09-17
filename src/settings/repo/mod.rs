@@ -2,23 +2,13 @@ use std::{collections::HashSet, fmt::Display, fs, iter::FromIterator, str::FromS
 
 use anyhow::{bail, Context, Result};
 use camino::Utf8Path;
-use crossterm::style::Stylize;
 use git2::Config as GitConfig;
 use indexmap::{IndexMap, IndexSet};
 use num_traits::Num;
 use serde::{Deserialize, Serialize};
 use tera::Context as TeraContext;
 
-use self::{
-    bool_reader::BoolReader, list_reader::ListReader, multi_list_reader::MultiListReader,
-    number_reader::NumberReader, string_reader::StringReader,
-};
-
-mod bool_reader;
-mod list_reader;
-mod multi_list_reader;
-mod number_reader;
-mod string_reader;
+mod prompts;
 
 #[derive(Deserialize)]
 pub struct RepoSettings {
@@ -127,22 +117,6 @@ impl RepoSetting {
     }
 }
 
-pub trait InputReader {
-    type Output: Serialize;
-
-    fn read(&mut self, description: &str) -> Result<Self::Output, ReadError>;
-}
-
-#[derive(Debug, thiserror::Error)]
-pub enum ReadError {
-    #[error("processing cancelled by the user")]
-    Cancelled,
-    #[error("invalid user input `{0}`")]
-    InvalidInput(&'static str),
-    #[error("I/O error occurred")]
-    Io(#[from] std::io::Error),
-}
-
 pub fn load(path: &Utf8Path) -> Result<RepoSettings> {
     let buf = fs::read(path.join(".hatch.toml")).context("failed reading hatch config file")?;
     let settings = toml::from_slice::<RepoSettings>(&buf).context("invalid hatch settings")?;
@@ -190,10 +164,7 @@ pub fn new_context(settings: &RepoSettings, project_name: &str) -> Result<TeraCo
             values: IndexSet::from_iter(["bin".to_owned(), "lib".to_owned()]),
             default: None,
         };
-        match ListReader::new(setting)
-            .read("what crate type would you like to create?")?
-            .as_ref()
-        {
+        match prompts::prompt_list("what crate type would you like to create?", setting)?.as_ref() {
             "bin" => CrateType::Bin,
             "lib" => CrateType::Lib,
             _ => unreachable!(),
@@ -211,70 +182,40 @@ pub fn new_context(settings: &RepoSettings, project_name: &str) -> Result<TeraCo
 }
 
 pub fn fill_context(ctx: &mut TeraContext, settings: RepoSettings) -> Result<()> {
-    let mut buf = String::new();
-
     for (name, setting) in settings.args {
         match setting.ty {
             SettingType::Bool(value) => {
-                let mut reader = BoolReader::new(value, &mut buf);
-                let value = loop {
-                    match reader.read(&setting.description) {
-                        Ok(value) => break value,
-                        Err(ReadError::InvalidInput(msg)) => println!("{}", msg.red()),
-                        Err(e) => return Err(e.into()),
-                    }
-                };
+                let value = prompts::prompt_bool(&setting.description, &value)?;
 
                 ctx.try_insert(name, &value)
                     .context("failed adding value to context")?;
             }
             SettingType::String(value) => {
-                let mut reader = StringReader::new(value, &mut buf);
-                let value = loop {
-                    match reader.read(&setting.description) {
-                        Ok(value) => break value,
-                        Err(ReadError::InvalidInput(msg)) => println!("{}", msg.red()),
-                        Err(e) => return Err(e.into()),
-                    }
-                };
+                let value = prompts::prompt_string(&setting.description, &value)?;
 
                 ctx.try_insert(name, &value)
                     .context("failed adding value to context")?;
             }
             SettingType::Number(value) => {
-                let mut reader = NumberReader::new(value, &mut buf);
-                let value = loop {
-                    match reader.read(&setting.description) {
-                        Ok(value) => break value,
-                        Err(ReadError::InvalidInput(msg)) => println!("{}", msg.red()),
-                        Err(e) => return Err(e.into()),
-                    }
-                };
+                let value = prompts::prompt_number(&setting.description, &value)?;
 
                 ctx.try_insert(name, &value)
                     .context("failed adding value to context")?;
             }
             SettingType::Float(value) => {
-                let mut reader = NumberReader::new(value, &mut buf);
-                let value = loop {
-                    match reader.read(&setting.description) {
-                        Ok(value) => break value,
-                        Err(ReadError::InvalidInput(msg)) => println!("{}", msg.red()),
-                        Err(e) => return Err(e.into()),
-                    }
-                };
+                let value = prompts::prompt_number(&setting.description, &value)?;
 
                 ctx.try_insert(name, &value)
                     .context("failed adding value to context")?;
             }
             SettingType::List(value) => {
-                let value = ListReader::new(value).read(&setting.description)?;
+                let value = prompts::prompt_list(&setting.description, value)?;
 
                 ctx.try_insert(name, &value)
                     .context("failed adding value to context")?;
             }
             SettingType::MultiList(value) => {
-                let value = MultiListReader::new(value).read(&setting.description)?;
+                let value = prompts::prompt_multi_list(&setting.description, value)?;
 
                 ctx.try_insert(name, &value)
                     .context("failed adding value to context")?;
