@@ -2,13 +2,12 @@
 name = "{{ project_name }}"
 authors = ["{{ git_author }}"]
 version = "0.1.0"
-edition = "2018"
-resolver = "2"
+edition = "2021"
 license = "AGPL-3.0-only"
 
 [dependencies]
-anyhow = "1.0.43"
-axum = "0.2.3"
-tokio = { version = "1.11.0", features = ["macros", "rt"] }
-tracing = "0.1.26"
-tracing-subscriber = "0.2.20"
+anyhow = "1.0.44"
+axum = "0.2.8"
+tokio = { version = "1.12.0", features = ["macros", "rt"] }
+tracing = "0.1.29"
+tracing-subscriber = "0.2.25"
