@@ -3,25 +3,22 @@ use std::{convert::TryFrom, env, fs, io};
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use camino::{Utf8Path, Utf8PathBuf};
 use cargo_hatch::{dirs::Utf8ProjectDirs, repo, settings, templates};
-use structopt::{
-    clap::{AppSettings, Shell},
-    StructOpt,
-};
+use clap::{AppSettings, IntoApp, Parser, Subcommand};
+use clap_complete::Shell;
 
-#[derive(StructOpt)]
-#[structopt(
+#[derive(Parser)]
+#[clap(
     about,
     author,
-    global_setting = AppSettings::ColoredHelp,
+    version,
     global_setting = AppSettings::DeriveDisplayOrder,
-    global_setting = AppSettings::VersionlessSubcommands,
 )]
 enum Opt {
-    #[structopt(about)]
+    #[clap(subcommand)]
     Hatch(Command),
 }
 
-#[derive(StructOpt)]
+#[derive(Subcommand)]
 enum Command {
     /// Initialize a new template with a sample configuration.
     Init {
@@ -40,7 +37,7 @@ enum Command {
     /// Create a new project from a template located in a remote Git repository.
     Git {
         /// An optional sub-folder within the repository that contains the template.
-        #[structopt(long)]
+        #[clap(long)]
         folder: Option<Utf8PathBuf>,
         /// HTTP or Git URL to the remote repository.
         url: String,
@@ -57,13 +54,13 @@ enum Command {
     /// Generate shell completions for cargo-hatch, writing them to the standard output.
     Completions {
         /// The shell type to generate completions for.
-        #[structopt(possible_values = &Shell::variants())]
+        #[clap(arg_enum)]
         shell: Shell,
     },
 }
 
 fn main() -> Result<()> {
-    let Opt::Hatch(cmd) = Opt::from_args();
+    let Opt::Hatch(cmd) = Opt::parse();
     let dirs = Utf8ProjectDirs::new()?;
 
     match cmd {
@@ -156,7 +153,12 @@ fn main() -> Result<()> {
             println!("done!");
         }
         Command::Completions { shell } => {
-            Opt::clap().gen_completions_to(env!("CARGO_PKG_NAME"), shell, &mut io::stdout().lock());
+            clap_complete::generate(
+                shell,
+                &mut Opt::into_app(),
+                env!("CARGO_PKG_NAME"),
+                &mut io::stdout().lock(),
+            );
         }
     }
 
