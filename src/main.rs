@@ -1,6 +1,6 @@
 use std::{convert::TryFrom, env, fs, io};
 
-use anyhow::{anyhow, ensure, Context, Result};
+use anyhow::{anyhow, bail, ensure, Context, Result};
 use camino::{Utf8Path, Utf8PathBuf};
 use cargo_hatch::{dirs::Utf8ProjectDirs, repo, settings, templates};
 use structopt::{
@@ -100,16 +100,30 @@ fn main() -> Result<()> {
                 .get(&bookmark)
                 .ok_or_else(|| anyhow!("bookmark with name `{}` unknown", bookmark))?;
 
-            let mut path = {
-                let base = dirs.cache_dir();
-                let repo_name = repo::find_repo_name(&bookmark.repository)
-                    .context("can't determine repo name from git URL")?;
-                base.join(repo_name)
+            let mut path = if bookmark.repository.starts_with("git@")
+                || bookmark.repository.starts_with("http:")
+                || bookmark.repository.starts_with("https:")
+            {
+                let path = {
+                    let base = dirs.cache_dir();
+                    let repo_name = repo::find_repo_name(&bookmark.repository)
+                        .context("can't determine repo name from git URL")?;
+                    base.join(repo_name)
+                };
+
+                fs::create_dir_all(&path)?;
+
+                repo::clone_or_update(&bookmark.repository, &path).context("failed cloning")?;
+
+                path
+            } else if fs::metadata(&bookmark.repository)
+                .map(|meta| meta.is_dir())
+                .unwrap_or_default()
+            {
+                Utf8PathBuf::from(&bookmark.repository)
+            } else {
+                bail!("configured bookmark repository doesn't seem to be remote git repo URL nor a local machine folder");
             };
-
-            fs::create_dir_all(&path)?;
-
-            repo::clone_or_update(&bookmark.repository, &path).context("failed cloning")?;
 
             if let Some(folder) = &bookmark.folder {
                 path.push(folder);
