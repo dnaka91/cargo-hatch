@@ -160,6 +160,7 @@ fn generate_project(path: &Utf8Path, name: Option<String>) -> Result<()> {
     settings::fill_context(&mut context, repo_settings).context("failed filling context")?;
 
     templates::render(files, &context, &target).context("failed rendering templates")?;
+    repo::init(&target).context("failed initializing git repository")?;
 
     Ok(())
 }

@@ -103,6 +103,12 @@ pub fn find_repo_name(url: &str) -> Option<&str> {
     .filter(|name| name.chars().filter(|&c| c == '/').count() == 1)
 }
 
+/// Initialize a new Git repository at the given location.
+pub fn init(target: &Utf8Path) -> Result<()> {
+    Repository::init(target)?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
