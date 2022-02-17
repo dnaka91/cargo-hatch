@@ -1,3 +1,6 @@
+[advisories]
+ignore = ["RUSTSEC-2020-0159"]
+
 [licenses]
 allow = []
 allow-osi-fsf-free = "both"
