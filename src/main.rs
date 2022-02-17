@@ -3,7 +3,7 @@ use std::{convert::TryFrom, env, fs, io};
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use camino::{Utf8Path, Utf8PathBuf};
 use cargo_hatch::{dirs::Utf8ProjectDirs, repo, settings, templates};
-use clap::{AppSettings, IntoApp, Parser, Subcommand};
+use clap::{AppSettings, CommandFactory, Parser, Subcommand};
 use clap_complete::Shell;
 
 #[derive(Parser)]
@@ -155,7 +155,7 @@ fn main() -> Result<()> {
         Command::Completions { shell } => {
             clap_complete::generate(
                 shell,
-                &mut Opt::into_app(),
+                &mut Opt::command(),
                 env!("CARGO_PKG_NAME"),
                 &mut io::stdout().lock(),
             );
