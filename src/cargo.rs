@@ -19,7 +19,8 @@ pub fn update_all_cargo_tomls(target: &Utf8Path, files: &[RepoFile]) -> Result<(
             let mut doc = file_content.parse::<Document>()?;
 
             for table in ["dependencies", "dev-dependencies", "build-dependencies"] {
-                update_versions(&index, &mut doc, table);
+                let updates = update_versions(&index, &mut doc, table);
+                print_updates(file.name(), updates);
             }
 
             fs::write(target_file, doc.to_string())?;
@@ -29,7 +30,15 @@ pub fn update_all_cargo_tomls(target: &Utf8Path, files: &[RepoFile]) -> Result<(
     Ok(())
 }
 
-fn update_versions(index: &impl CrateIndex, doc: &mut Document, table: &str) {
+struct Update {
+    name: String,
+    old: String,
+    new: String,
+}
+
+fn update_versions(index: &impl CrateIndex, doc: &mut Document, table: &str) -> Vec<Update> {
+    let mut updates = Vec::new();
+
     if let Some(deps) = doc.get_mut(table).and_then(Item::as_table_like_mut) {
         for (name, spec) in deps.iter_mut() {
             let version = match spec {
@@ -57,12 +66,11 @@ fn update_versions(index: &impl CrateIndex, doc: &mut Document, table: &str) {
                     let mut latest = Formatted::new(latest.to_string());
 
                     if version.value() != latest.value() {
-                        println!(
-                            "updating {name} from {version} to {latest}",
-                            name = name.get(),
-                            version = version.value(),
-                            latest = latest.value(),
-                        );
+                        updates.push(Update {
+                            name: name.get().to_owned(),
+                            old: version.value().clone(),
+                            new: latest.value().clone(),
+                        });
                     }
 
                     std::mem::swap(version.decor_mut(), latest.decor_mut());
@@ -71,6 +79,44 @@ fn update_versions(index: &impl CrateIndex, doc: &mut Document, table: &str) {
             }
         }
     }
+
+    updates
+}
+
+fn print_updates(file: &Utf8Path, updates: Vec<Update>) {
+    if updates.is_empty() {
+        return;
+    }
+
+    println!("updated versions of {file:?}:\n");
+
+    let mins = updates
+        .iter()
+        .fold(("name".len(), "old".len(), "new".len()), |acc, update| {
+            (
+                acc.0.max(update.name.len()),
+                acc.1.max(update.old.len()),
+                acc.2.max(update.new.len()),
+            )
+        });
+
+    println!(
+        "{0:1$} | {2:3$} | {4:5$}",
+        "name", mins.0, "old", mins.1, "new", mins.2,
+    );
+    println!(
+        "{0:-<1$} | {2:-<3$} | {4:-<5$}",
+        "", mins.0, "", mins.1, "", mins.2,
+    );
+
+    for update in updates {
+        println!(
+            "{0:1$} | {2:3$} | {4:5$}",
+            update.name, mins.0, update.old, mins.1, update.new, mins.2,
+        );
+    }
+
+    println!();
 }
 
 trait CrateIndex {
