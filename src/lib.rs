@@ -7,6 +7,7 @@
     clippy::option_if_let_else
 )]
 
+pub mod cargo;
 pub mod dirs;
 pub mod repo;
 pub mod settings;

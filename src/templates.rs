@@ -15,6 +15,13 @@ pub struct RepoFile {
     template: bool,
 }
 
+impl RepoFile {
+    #[must_use]
+    pub fn name(&self) -> &Utf8Path {
+        &self.name
+    }
+}
+
 pub fn collect_files(dir: &Utf8Path) -> Result<Vec<RepoFile>> {
     let mut files = Vec::new();
     let walk = WalkBuilder::new(dir)
@@ -59,7 +66,7 @@ fn is_binary(path: &Utf8Path) -> bool {
     }
 }
 
-pub fn render(files: Vec<RepoFile>, context: &TeraContext, target: &Utf8Path) -> Result<()> {
+pub fn render(files: &[RepoFile], context: &TeraContext, target: &Utf8Path) -> Result<()> {
     let tera = {
         let mut tera = Tera::default();
         tera.add_template_files(
@@ -83,7 +90,7 @@ pub fn render(files: Vec<RepoFile>, context: &TeraContext, target: &Utf8Path) ->
             tera.render_to(file.name.as_str(), context, &mut out)?;
             out.flush()?;
         } else {
-            fs::copy(file.path, target.join(file.name))?;
+            fs::copy(&file.path, target.join(&file.name))?;
         }
     }
 

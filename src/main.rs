@@ -2,8 +2,8 @@ use std::{convert::TryFrom, env, fs, io};
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use camino::{Utf8Path, Utf8PathBuf};
-use cargo_hatch::{dirs::Utf8ProjectDirs, repo, settings, templates};
-use clap::{AppSettings, CommandFactory, Parser, Subcommand};
+use cargo_hatch::{cargo, dirs::Utf8ProjectDirs, repo, settings, templates};
+use clap::{AppSettings, Args, CommandFactory, Parser, Subcommand};
 use clap_complete::Shell;
 
 #[derive(Parser)]
@@ -31,8 +31,8 @@ enum Command {
     New {
         /// Bookmark as defined in the global configuration.
         bookmark: String,
-        /// Name of the new project, using the current working director if omitted.
-        name: Option<String>,
+        #[clap(flatten)]
+        flags: CreationFlags,
     },
     /// Create a new project from a template located in a remote Git repository.
     Git {
@@ -41,15 +41,15 @@ enum Command {
         folder: Option<Utf8PathBuf>,
         /// HTTP or Git URL to the remote repository.
         url: String,
-        /// Name of the new project, using the current working director if omitted.
-        name: Option<String>,
+        #[clap(flatten)]
+        flags: CreationFlags,
     },
     /// Create a new project from a template located in the local file system.
     Local {
         /// Location of the template directory.
         path: Utf8PathBuf,
-        /// Name of the new project, using the current working director if omitted.
-        name: Option<String>,
+        #[clap(flatten)]
+        flags: CreationFlags,
     },
     /// Generate shell completions for cargo-hatch, writing them to the standard output.
     Completions {
@@ -57,6 +57,15 @@ enum Command {
         #[clap(arg_enum)]
         shell: Shell,
     },
+}
+
+#[derive(Args)]
+struct CreationFlags {
+    /// Name of the new project, using the current working directory if omitted.
+    name: Option<String>,
+    /// Update all dependencies to the latest compatible version after project creation.
+    #[clap(short, long)]
+    update_deps: bool,
 }
 
 fn main() -> Result<()> {
@@ -90,7 +99,7 @@ fn main() -> Result<()> {
                 );
             }
         }
-        Command::New { bookmark, name } => {
+        Command::New { bookmark, flags } => {
             let settings = settings::load_global(&dirs)?;
             let bookmark = settings
                 .bookmarks
@@ -126,10 +135,10 @@ fn main() -> Result<()> {
                 path.push(folder);
             }
 
-            generate_project(&path, name)?;
+            generate_project(&path, flags)?;
             println!("done!");
         }
-        Command::Git { folder, url, name } => {
+        Command::Git { folder, url, flags } => {
             let mut path = {
                 let base = dirs.cache_dir();
                 let repo_name =
@@ -145,11 +154,11 @@ fn main() -> Result<()> {
                 path.push(folder);
             }
 
-            generate_project(&path, name)?;
+            generate_project(&path, flags)?;
             println!("done!");
         }
-        Command::Local { path, name } => {
-            generate_project(&path, name)?;
+        Command::Local { path, flags } => {
+            generate_project(&path, flags)?;
             println!("done!");
         }
         Command::Completions { shell } => {
@@ -165,8 +174,8 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn generate_project(path: &Utf8Path, name: Option<String>) -> Result<()> {
-    let (name, target) = get_target_dir(name).context("failed preparing target directory")?;
+fn generate_project(path: &Utf8Path, flags: CreationFlags) -> Result<()> {
+    let (name, target) = get_target_dir(flags.name).context("failed preparing target directory")?;
 
     let files = templates::collect_files(path).context("failed collecting files")?;
     let repo_settings = settings::load_repo(path).context("failed loading hatch config")?;
@@ -175,7 +184,12 @@ fn generate_project(path: &Utf8Path, name: Option<String>) -> Result<()> {
         settings::new_context(&repo_settings, &name).context("failed creating context")?;
     settings::fill_context(&mut context, repo_settings).context("failed filling context")?;
 
-    templates::render(files, &context, &target).context("failed rendering templates")?;
+    templates::render(&files, &context, &target).context("failed rendering templates")?;
+
+    if flags.update_deps {
+        cargo::update_all_cargo_tomls(&target, &files)?;
+    }
+
     repo::init(&target).context("failed initializing git repository")?;
 
     Ok(())

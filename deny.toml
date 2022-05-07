@@ -2,11 +2,13 @@
 ignore = ["RUSTSEC-2020-0159"]
 
 [licenses]
-allow = []
+allow = ["MPL-2.0"]
 allow-osi-fsf-free = "both"
 exceptions = [
     { allow = ["AGPL-3.0"], name = "cargo-hatch", version = "*" },
 ]
 
 [bans]
-skip = []
+skip = [
+    { name = "wasi", version = "=0.10.2" },
+]

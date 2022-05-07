@@ -12,6 +12,8 @@ pub struct Settings {
     pub git: Git,
     #[serde(default)]
     pub bookmarks: BTreeMap<String, Bookmark>,
+    #[serde(default)]
+    pub update_deps: bool,
 }
 
 #[derive(Default, Deserialize)]
