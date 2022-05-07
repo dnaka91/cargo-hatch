@@ -14,21 +14,21 @@ keywords = ["cargo", "cargo-subcommand", "cli", "crates", "template"]
 include = ["tests/**/*", "src/**/*", "LICENSE", "README.md"]
 
 [dependencies]
-anyhow = "1.0.53"
+anyhow = "1.0.57"
 camino = { version = "1.0.7", features = ["serde1"] }
-clap = { version = "3.1.0", features = ["derive"] }
-clap_complete = "3.1.0"
-crossterm = "0.23.0"
+clap = { version = "3.1.17", features = ["derive"] }
+clap_complete = "3.1.4"
+crossterm = "0.23.2"
 directories-next = "2.0.0"
-git2 = "0.13.25"
+git2 = "0.14.3"
 ignore = "0.4.18"
-indexmap = { version = "1.8.0", features = ["serde-1"] }
+indexmap = { version = "1.8.1", features = ["serde-1"] }
 mime_guess = "2.0.4"
-num-traits = "0.2.14"
-serde = { version = "1.0.136", features = ["derive"] }
+num-traits = "0.2.15"
+serde = { version = "1.0.137", features = ["derive"] }
 tera = "1.15.0"
-thiserror = "1.0.30"
-toml = "0.5.8"
+thiserror = "1.0.31"
+toml = "0.5.9"
 
 [dev-dependencies]
 dir-diff = "0.3.2"
@@ -36,3 +36,4 @@ tempfile = "3.3.0"
 
 [profile.release]
 lto = true
+strip = true
