@@ -15,12 +15,12 @@ include = ["tests/**/*", "src/**/*", "LICENSE", "README.md"]
 
 [dependencies]
 anyhow = "1.0.57"
-camino = { version = "1.0.8", features = ["serde1"] }
+camino = { version = "1.0.9", features = ["serde1"] }
 clap = { version = "3.1.18", features = ["derive"] }
 clap_complete = "3.1.4"
-crates-index = { version = "0.18.7", default-features = false }
+crates-index = { version = "0.18.8", default-features = false }
 crossterm = "0.23.2"
-directories-next = "2.0.0"
+directories = "4.0.1"
 git2 = "0.14.4"
 ignore = "0.4.18"
 indexmap = { version = "1.8.1", features = ["serde-1"] }
