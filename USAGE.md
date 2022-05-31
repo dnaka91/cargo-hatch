@@ -233,6 +233,109 @@ description = "What's your name?"
 What's your name?:
 ```
 
+#### String validators
+
+In addition to free-form strings arguments, a validator can bespecified, that further restrains the
+allowed input.
+
+##### Crate
+
+Value: `crate`
+
+The crate validator restricts the input to values that are considered a proper Rust crate name,
+according to the [crates.io](https://crates.io) rules. That means precisely:
+
+- Starts with an [alphabetic] character.
+- All following characters are [ASCII alphanumeric], `_` or `-`.
+- The value is only up to **64** characters long.
+
+[alphabetic]: https://doc.rust-lang.org/std/primitive.char.html#method.is_alphabetic
+[ASCII alphanumeric]: https://doc.rust-lang.org/std/primitive.char.html#method.is_ascii_alphanumeric
+
+```toml
+[name]
+type = "string"
+description = "Name a crate"
+validator = "crate"
+```
+
+##### Rust identifier
+
+Value: `ident`
+
+The ident validator ensures, the input is a Rust identifier. That means it adheres to the following
+rules:
+
+- Starts with a [Unicode XID Start] character, and has optional following characters, that are all
+  in the [Unicode XID Continue] space.
+- Or starts with an underscore `_` and is followed by one or more [Unicode XID Continue] characters.
+- Is not a reserved [Rust keyword].
+
+[Unicode XID Start]: https://docs.rs/unicode-ident/1.0.0/unicode_ident/index.html
+[Unicode XID Continue]: https://docs.rs/unicode-ident/1.0.0/unicode_ident/index.html
+[Rust keyword]: https://docs.rs/check_keyword/0.2.0/check_keyword/index.html
+
+```toml
+[name]
+type = "string"
+description = "Name a crate"
+validator = "ident"
+```
+
+##### Semantic version
+
+Value: `semver`
+
+The semver validator verifies, that the input value is a proper semantic version. It means, it must
+have the typical `X.Y.Z` form and optional prerelease or build metadata values.
+
+See the [semver::Version](https://docs.rs/semver/1.0.9/semver/struct.Version.html) for further
+details about requirements for a valid value.
+
+```toml
+[name]
+type = "string"
+description = "Name a crate"
+validator = "semver"
+```
+
+##### Semantic version requirement specification
+
+Value: `semver_req`
+
+This validator is very similar to the semver validator, but instead allows version requirements,
+rather than a singular version. It the same content that is specified in the `Cargo.toml` for
+dependency versions.
+
+See the [semver::VersionReq](https://docs.rs/semver/1.0.9/semver/struct.VersionReq.html) for further
+details.
+
+```toml
+[name]
+type = "string"
+description = "Name a crate"
+validator = "semver_req"
+```
+
+##### Regular expression
+
+Value: `regex`
+
+The regex validator allows for any regular expression to be used as input validation. Please note
+that the value is defined slightly different for this validator, as it has to define the validator
+type **and** the actual regex.
+
+**Note:** Usually it is recommended to use `^` and `$` at the beginning and end of the regex, as it
+ensures to check against the **whole** input. Otherwise, the input may only be partially checked and
+empty values may become possible.
+
+```toml
+[name]
+type = "string"
+description = "Name a crate"
+validator.regex = "^[a-z]+$"
+```
+
 #### Numbers
 
 Numbers are parsed as 64-bit integers (Rust's `i64` type) and can optionally define a valid minimum

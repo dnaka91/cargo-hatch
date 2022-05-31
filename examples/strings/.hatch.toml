@@ -1,0 +1,25 @@
+crate_type = "bin"
+
+[dep_name]
+type = "string"
+description = "What is your first dependency?"
+validator = "crate"
+
+[dep_version]
+type = "string"
+description = "What version do you want?"
+validator = "semver_req"
+
+[const_name]
+type = "string"
+description = "Name a const variable"
+validator = "ident"
+
+[const_value]
+type = "string"
+description = "Give it a text value"
+
+[lowercase]
+type = "string"
+description = "Give me some lowercase value"
+validator.regex = "^[a-z]+$"

@@ -1,8 +1,11 @@
 use anyhow::Result;
 use crossterm::style::Stylize;
-use inquire::{required, Confirm, CustomType, MultiSelect, Select, Text};
+use inquire::{Confirm, CustomType, MultiSelect, Select, Text};
 
-use super::{BoolSetting, ListSetting, MultiListSetting, Number, NumberSetting, StringSetting};
+use super::{
+    validators, BoolSetting, ListSetting, MultiListSetting, Number, NumberSetting, StringSetting,
+    StringValidator,
+};
 
 pub fn prompt_bool(description: &str, setting: &BoolSetting) -> Result<bool> {
     fn default_value_formatter(value: bool) -> String {
@@ -20,8 +23,17 @@ pub fn prompt_bool(description: &str, setting: &BoolSetting) -> Result<bool> {
     prompt.prompt().map_err(Into::into)
 }
 
-pub fn prompt_string(description: &str, setting: &StringSetting) -> Result<String> {
-    let mut prompt = Text::new(description).with_validator(required!());
+pub fn prompt_string(description: &str, setting: StringSetting) -> Result<String> {
+    let validator: Box<dyn Fn(&str) -> Result<(), String>> = match setting.validator {
+        None => Box::new(validators::required),
+        Some(StringValidator::Crate) => Box::new(validators::krate),
+        Some(StringValidator::Ident) => Box::new(validators::ident),
+        Some(StringValidator::Semver) => Box::new(validators::semver),
+        Some(StringValidator::SemverReq) => Box::new(validators::semver_req),
+        Some(StringValidator::Regex(re)) => Box::new(validators::regex(re)),
+    };
+
+    let mut prompt = Text::new(description).with_validator(&*validator);
     prompt.default = setting.default.as_deref();
 
     prompt.prompt().map_err(Into::into)

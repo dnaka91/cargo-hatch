@@ -5,10 +5,12 @@ use camino::Utf8Path;
 use git2::Config as GitConfig;
 use indexmap::{IndexMap, IndexSet};
 use num_traits::Num;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use tera::Context as TeraContext;
 
 mod prompts;
+mod validators;
 
 #[derive(Deserialize)]
 pub struct RepoSettings {
@@ -50,6 +52,18 @@ pub struct BoolSetting {
 #[derive(Deserialize)]
 pub struct StringSetting {
     default: Option<String>,
+    validator: Option<StringValidator>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum StringValidator {
+    Crate,
+    Ident,
+    Semver,
+    SemverReq,
+    #[serde(with = "serde_with::rust::display_fromstr")]
+    Regex(Regex),
 }
 
 pub trait Number: Num + Copy + Display + FromStr + PartialOrd + Serialize {}
@@ -191,7 +205,7 @@ pub fn fill_context(ctx: &mut TeraContext, settings: RepoSettings) -> Result<()>
                     .context("failed adding value to context")?;
             }
             SettingType::String(value) => {
-                let value = prompts::prompt_string(&setting.description, &value)?;
+                let value = prompts::prompt_string(&setting.description, value)?;
 
                 ctx.try_insert(name, &value)
                     .context("failed adding value to context")?;

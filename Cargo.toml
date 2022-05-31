@@ -15,6 +15,7 @@ include = ["tests/**/*", "src/**/*", "LICENSE", "README.md"]
 [dependencies]
 anyhow = "1.0.57"
 camino = { version = "1.0.9", features = ["serde1"] }
+check_keyword = "0.2.0"
 clap = { version = "3.1.18", features = ["derive"] }
 clap_complete = "3.1.4"
 crates-index = { version = "0.18.8", default-features = false }
@@ -26,12 +27,15 @@ indexmap = { version = "1.8.2", features = ["serde-1"] }
 inquire = "0.2.1"
 mime_guess = "2.0.4"
 num-traits = "0.2.15"
+regex = "1.5.6"
 semver = "1.0.9"
 serde = { version = "1.0.137", features = ["derive"] }
+serde_with = { version = "1.14.0", default-features = false }
 tera = "1.15.0"
 thiserror = "1.0.31"
 toml = "0.5.9"
 toml_edit = "0.14.4"
+unicode-ident = "1.0.0"
 
 [dev-dependencies]
 dir-diff = "0.3.2"
