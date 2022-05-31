@@ -133,6 +133,12 @@ description = "Basic template for a web-server using the `axum` crate"
 The `.hatch.toml` file is the main configuration point of a template and **required** as a marker
 for the repository (even if it's empty). The file itself is excluded from the generated files.
 
+### Project name
+
+The project name is taken from `new`/`git`/`local` commands, either provided on the CLI or derived
+from the current directory. It is globally available in each template through the `project_name`
+variable.
+
 ### Crate type
 
 Key: `crate_type`
