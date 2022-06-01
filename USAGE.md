@@ -253,7 +253,7 @@ according to the [crates.io](https://crates.io) rules. That means precisely:
 [ASCII alphanumeric]: https://doc.rust-lang.org/std/primitive.char.html#method.is_ascii_alphanumeric
 
 ```toml
-[name]
+[crate_name]
 type = "string"
 description = "Name a crate"
 validator = "crate"
@@ -276,9 +276,9 @@ rules:
 [Rust keyword]: https://docs.rs/check_keyword/0.2.0/check_keyword/index.html
 
 ```toml
-[name]
+[const_name]
 type = "string"
-description = "Name a crate"
+description = "Please provide a name for the constant"
 validator = "ident"
 ```
 
@@ -293,9 +293,9 @@ See the [semver::Version](https://docs.rs/semver/1.0.9/semver/struct.Version.htm
 details about requirements for a valid value.
 
 ```toml
-[name]
+[version]
 type = "string"
-description = "Name a crate"
+description = "What version do you want to use?"
 validator = "semver"
 ```
 
@@ -311,9 +311,9 @@ See the [semver::VersionReq](https://docs.rs/semver/1.0.9/semver/struct.VersionR
 details.
 
 ```toml
-[name]
+[crate_version]
 type = "string"
-description = "Name a crate"
+description = "What version do you want to use?"
 validator = "semver_req"
 ```
 
@@ -332,7 +332,7 @@ empty values may become possible.
 ```toml
 [name]
 type = "string"
-description = "Name a crate"
+description = "Please provide a name, only in lowercase letters"
 validator.regex = "^[a-z]+$"
 ```
 
