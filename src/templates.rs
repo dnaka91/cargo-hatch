@@ -5,9 +5,12 @@ use std::{
 
 use anyhow::{Context, Result};
 use camino::{Utf8Path, Utf8PathBuf};
+use globset::{GlobBuilder, GlobSetBuilder};
 use ignore::WalkBuilder;
 use mime_guess::mime;
 use tera::{Context as TeraContext, Tera};
+
+use crate::settings::FileIgnore;
 
 pub struct RepoFile {
     path: Utf8PathBuf,
@@ -64,6 +67,38 @@ fn is_binary(path: &Utf8Path) -> bool {
         mime::APPLICATION => matches!(mime.subtype(), mime::OCTET_STREAM | mime::PDF),
         _ => false,
     }
+}
+
+pub fn filter_ignored(
+    files: Vec<RepoFile>,
+    context: &TeraContext,
+    ignore: Vec<FileIgnore>,
+) -> Result<Vec<RepoFile>> {
+    let mut set = GlobSetBuilder::new();
+
+    for rule in ignore {
+        let result = Tera::one_off(&rule.condition, context, false)?;
+        let active = result.trim().parse::<bool>()?;
+
+        if !active {
+            continue;
+        }
+
+        for path in rule.paths {
+            set.add(
+                GlobBuilder::new(path.as_str())
+                    .literal_separator(true)
+                    .build()?,
+            );
+        }
+    }
+
+    let filter = set.build()?;
+
+    Ok(files
+        .into_iter()
+        .filter(|file| !filter.is_match(&file.name))
+        .collect())
 }
 
 pub fn render(files: &[RepoFile], context: &TeraContext, target: &Utf8Path) -> Result<()> {

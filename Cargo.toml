@@ -22,6 +22,7 @@ crates-index = { version = "0.18.8", default-features = false }
 crossterm = "0.21.0"
 directories = "4.0.1"
 git2 = "0.14.4"
+globset = "0.4.8"
 ignore = "0.4.18"
 indexmap = { version = "1.8.2", features = ["serde-1"] }
 inquire = "0.2.1"

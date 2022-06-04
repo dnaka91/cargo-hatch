@@ -1,7 +1,7 @@
 use std::{collections::HashSet, fmt::Display, fs, iter::FromIterator, str::FromStr};
 
 use anyhow::{bail, Context, Result};
-use camino::Utf8Path;
+use camino::{Utf8Path, Utf8PathBuf};
 use git2::Config as GitConfig;
 use indexmap::{IndexMap, IndexSet};
 use num_traits::Num;
@@ -15,8 +15,15 @@ mod validators;
 #[derive(Deserialize)]
 pub struct RepoSettings {
     crate_type: Option<CrateType>,
+    pub ignore: Vec<FileIgnore>,
     #[serde(flatten)]
-    args: IndexMap<String, RepoSetting>,
+    pub args: IndexMap<String, RepoSetting>,
+}
+
+#[derive(Deserialize)]
+pub struct FileIgnore {
+    pub paths: Vec<Utf8PathBuf>,
+    pub condition: String,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -195,8 +202,8 @@ pub fn new_context(settings: &RepoSettings, project_name: &str) -> Result<TeraCo
     Ok(ctx)
 }
 
-pub fn fill_context(ctx: &mut TeraContext, settings: RepoSettings) -> Result<()> {
-    for (name, setting) in settings.args {
+pub fn fill_context(ctx: &mut TeraContext, args: IndexMap<String, RepoSetting>) -> Result<()> {
+    for (name, setting) in args {
         match setting.ty {
             SettingType::Bool(value) => {
                 let value = prompts::prompt_bool(&setting.description, &value)?;

@@ -1,0 +1,7 @@
+[[ignore]]
+paths = ["src/lib.rs"]
+condition = "{{ crate_bin }}"
+
+[[ignore]]
+paths = ["src/main.rs"]
+condition = "{{ crate_lib }}"

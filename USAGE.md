@@ -185,6 +185,36 @@ context of each template. The provided values are:
 - `git_name`: User name as defined in the git config's `user.name` field.
 - `git_email`: User email as defined in the git config's `user.email` field.
 
+### Ignore paths
+
+Key: `ignore`
+
+Sometimes you want to ignore certain files and folders based on the arguments selected by the user.
+For example some files may only be needed for a library or binary crate. You can do so by using the
+`[[ignore]]` settings, which allow you to use the available template variables to decide upon file
+exclusion.
+
+You can create as many ignore settings as you like. Each requires a list of **glob patterns** to
+select the files to exclude, and a condition to decide whether to actually exclude these files.
+
+- `paths`: List of **glob patterns** to select excluded files.
+- `condition`: Tera template that is executed to determine exclusion. It is filled with all the
+  pre-defined and user-selected variables, same as the regular templates. It must evaluate to either
+  `true` or `false`.
+
+The following is a basic example, that excludes the `src/main.rs` when creating a library crate, and
+excludes CLI related Rust files and shell completions when the selected `kind` is a web server.
+
+```toml
+[[ignore]]
+paths = ["src/main.rs"]
+condition = "{{ crate_lib }}"
+
+[[ignore]]
+paths = ["src/cli/**", "completions/**"]
+condition = '{{ kind == "webserver" }}'
+```
+
 ### Arguments
 
 Arguments are extra values that are queried from the user to render the template and specific to

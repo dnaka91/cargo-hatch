@@ -182,8 +182,9 @@ fn generate_project(path: &Utf8Path, flags: CreationFlags) -> Result<()> {
 
     let mut context =
         settings::new_context(&repo_settings, &name).context("failed creating context")?;
-    settings::fill_context(&mut context, repo_settings).context("failed filling context")?;
+    settings::fill_context(&mut context, repo_settings.args).context("failed filling context")?;
 
+    let files = templates::filter_ignored(files, &context, repo_settings.ignore)?;
     templates::render(&files, &context, &target).context("failed rendering templates")?;
 
     if flags.update_deps {
