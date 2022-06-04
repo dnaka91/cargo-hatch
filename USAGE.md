@@ -128,7 +128,7 @@ repository = "git@github.com:dnaka91/rust-server-template.git"
 description = "Basic template for a web-server using the `axum` crate"
 ```
 
-## Temlate configuration with `.hatch.toml`
+## Template configuration with `.hatch.toml`
 
 The `.hatch.toml` file is the main configuration point of a template and **required** as a marker
 for the repository (even if it's empty). The file itself is excluded from the generated files.
