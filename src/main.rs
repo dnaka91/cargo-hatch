@@ -5,6 +5,7 @@ use camino::{Utf8Path, Utf8PathBuf};
 use cargo_hatch::{cargo, dirs::Utf8ProjectDirs, repo, settings, templates};
 use clap::{AppSettings, Args, CommandFactory, Parser, Subcommand};
 use clap_complete::Shell;
+use inquire::Confirm;
 
 #[derive(Parser)]
 #[clap(
@@ -213,17 +214,30 @@ fn get_target_dir(name: Option<String>) -> Result<(String, Utf8PathBuf)> {
         ),
     };
 
-    let exists = out.exists();
-    ensure!(!exists || out.is_dir(), "target path is not a directory");
+    ensure!(
+        !out.exists() || out.is_dir(),
+        "target diretory appears to be an existing file"
+    );
 
-    if exists {
-        let is_empty = out
-            .read_dir()
-            .context("failed listing directory entries")?
-            .next()
-            .is_none();
-        ensure!(is_empty, "the target directory is not empty");
+    if !is_dir_empty(&out)? {
+        let mut prompt = Confirm::new("target directory already exists. Do you want to continue?");
+        prompt.default = Some(false);
+        prompt.help_message = Some("if you continue, the directory will be cleared beforehand");
+
+        if prompt.prompt().context("failed to prompt for user input")? {
+            fs::remove_dir_all(&out).context("failed clearing output directory")?;
+        } else {
+            bail!("generation cancelled by user");
+        }
     }
 
     Ok((name, out))
+}
+
+fn is_dir_empty(path: &Utf8Path) -> Result<bool> {
+    Ok(path
+        .read_dir()
+        .context("failed listing directory entries")?
+        .next()
+        .is_none())
 }
