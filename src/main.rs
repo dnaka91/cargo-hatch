@@ -221,7 +221,7 @@ fn get_target_dir(name: Option<String>) -> Result<(String, Utf8PathBuf)> {
             .read_dir()
             .context("failed listing directory entries")?
             .next()
-            .is_some();
+            .is_none();
         ensure!(is_empty, "the target directory is not empty");
     }
 
