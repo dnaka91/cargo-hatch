@@ -23,6 +23,7 @@ pub struct RepoSettings {
 
 #[derive(Deserialize)]
 pub struct FileIgnore {
+    #[serde(with = "serde_with::As::<serde_with::OneOrMany<serde_with::Same>>")]
     pub paths: Vec<Utf8PathBuf>,
     pub condition: String,
 }
