@@ -1,4 +1,10 @@
-use std::{collections::HashSet, fmt::Display, fs, iter::FromIterator, str::FromStr};
+use std::{
+    collections::{HashMap, HashSet},
+    fmt::Display,
+    fs,
+    iter::FromIterator,
+    str::FromStr,
+};
 
 use anyhow::{bail, Context, Result};
 use camino::{Utf8Path, Utf8PathBuf};
@@ -8,6 +14,8 @@ use num_traits::Num;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use tera::Context as TeraContext;
+
+use super::DefaultValue;
 
 mod prompts;
 mod validators;
@@ -185,7 +193,9 @@ pub fn new_context(settings: &RepoSettings, project_name: &str) -> Result<TeraCo
             values: IndexSet::from_iter(["bin".to_owned(), "lib".to_owned()]),
             default: None,
         };
-        match prompts::prompt_list("what crate type would you like to create?", setting)?.as_ref() {
+        match prompts::prompt_list("what crate type would you like to create?", setting, None)?
+            .as_ref()
+        {
             "bin" => CrateType::Bin,
             "lib" => CrateType::Lib,
             _ => unreachable!(),
@@ -202,41 +212,82 @@ pub fn new_context(settings: &RepoSettings, project_name: &str) -> Result<TeraCo
     Ok(ctx)
 }
 
-pub fn fill_context(ctx: &mut TeraContext, args: IndexMap<String, RepoSetting>) -> Result<()> {
+pub fn fill_context(
+    ctx: &mut TeraContext,
+    args: IndexMap<String, RepoSetting>,
+    defaults: Option<&HashMap<String, DefaultValue>>,
+) -> Result<()> {
     for (name, setting) in args {
+        let default = defaults.and_then(|defaults| defaults.get(&name));
         match setting.ty {
             SettingType::Bool(value) => {
-                let value = prompts::prompt_bool(&setting.description, &value)?;
+                let value = prompts::prompt_bool(
+                    &setting.description,
+                    &value,
+                    default
+                        .map(|default| default.expect_bool(&name))
+                        .transpose()?,
+                )?;
 
                 ctx.try_insert(name, &value)
                     .context("failed adding value to context")?;
             }
             SettingType::String(value) => {
-                let value = prompts::prompt_string(&setting.description, value)?;
+                let value = prompts::prompt_string(
+                    &setting.description,
+                    value,
+                    default
+                        .map(|default| default.expect_string(&name))
+                        .transpose()?,
+                )?;
 
                 ctx.try_insert(name, &value)
                     .context("failed adding value to context")?;
             }
             SettingType::Number(value) => {
-                let value = prompts::prompt_number(&setting.description, &value)?;
+                let value = prompts::prompt_number(
+                    &setting.description,
+                    &value,
+                    default
+                        .map(|default| default.expect_number(&name))
+                        .transpose()?,
+                )?;
 
                 ctx.try_insert(name, &value)
                     .context("failed adding value to context")?;
             }
             SettingType::Float(value) => {
-                let value = prompts::prompt_number(&setting.description, &value)?;
+                let value = prompts::prompt_number(
+                    &setting.description,
+                    &value,
+                    default
+                        .map(|default| default.expect_float(&name))
+                        .transpose()?,
+                )?;
 
                 ctx.try_insert(name, &value)
                     .context("failed adding value to context")?;
             }
             SettingType::List(value) => {
-                let value = prompts::prompt_list(&setting.description, value)?;
+                let value = prompts::prompt_list(
+                    &setting.description,
+                    value,
+                    default
+                        .map(|default| default.expect_string(&name))
+                        .transpose()?,
+                )?;
 
                 ctx.try_insert(name, &value)
                     .context("failed adding value to context")?;
             }
             SettingType::MultiList(value) => {
-                let value = prompts::prompt_multi_list(&setting.description, value)?;
+                let value = prompts::prompt_multi_list(
+                    &setting.description,
+                    value,
+                    default
+                        .map(|default| default.expect_list(&name))
+                        .transpose()?,
+                )?;
 
                 ctx.try_insert(name, &value)
                     .context("failed adding value to context")?;
