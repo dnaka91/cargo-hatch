@@ -15,6 +15,7 @@ mod validators;
 #[derive(Deserialize)]
 pub struct RepoSettings {
     crate_type: Option<CrateType>,
+    #[serde(default)]
     pub ignore: Vec<FileIgnore>,
     #[serde(flatten)]
     pub args: IndexMap<String, RepoSetting>,

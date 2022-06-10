@@ -219,7 +219,7 @@ fn get_target_dir(name: Option<String>) -> Result<(String, Utf8PathBuf)> {
         "target diretory appears to be an existing file"
     );
 
-    if !is_dir_empty(&out)? {
+    if out.exists() && !is_dir_empty(&out)? {
         let mut prompt = Confirm::new("target directory already exists. Do you want to continue?");
         prompt.default = Some(false);
         prompt.help_message = Some("if you continue, the directory will be cleared beforehand");
