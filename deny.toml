@@ -4,8 +4,3 @@ allow-osi-fsf-free = "both"
 exceptions = [
     { allow = ["AGPL-3.0"], name = "cargo-hatch", version = "*" },
 ]
-
-[bans]
-skip = [
-    { name = "wasi", version = "=0.10.2" },
-]
