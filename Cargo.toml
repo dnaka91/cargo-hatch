@@ -16,7 +16,7 @@ include = ["tests/**/*", "src/**/*", "LICENSE", "README.md"]
 anyhow = "1.0.57"
 camino = { version = "1.0.9", features = ["serde1"] }
 check_keyword = "0.2.0"
-clap = { version = "3.2.1", features = ["derive"] }
+clap = { version = "3.2.4", features = ["derive"] }
 clap_complete = "3.2.1"
 crates-index = { version = "0.18.8", default-features = false }
 crossterm = "0.21.0"

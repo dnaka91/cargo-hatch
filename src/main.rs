@@ -24,7 +24,6 @@ enum Command {
     /// Initialize a new template with a sample configuration.
     Init {
         /// Name of the new template, using the current working directory if omitted.
-        #[clap(value_parser)]
         name: Option<String>,
     },
     /// List all configured bookmarks with name and description.
@@ -32,7 +31,6 @@ enum Command {
     /// Create a new project from configured bookmarks.
     New {
         /// Bookmark as defined in the global configuration.
-        #[clap(value_parser)]
         bookmark: String,
         #[clap(flatten)]
         flags: CreationFlags,
@@ -40,10 +38,9 @@ enum Command {
     /// Create a new project from a template located in a remote Git repository.
     Git {
         /// An optional sub-folder within the repository that contains the template.
-        #[clap(long, value_parser)]
+        #[clap(long)]
         folder: Option<Utf8PathBuf>,
         /// HTTP or Git URL to the remote repository.
-        #[clap(value_parser)]
         url: String,
         #[clap(flatten)]
         flags: CreationFlags,
@@ -51,7 +48,6 @@ enum Command {
     /// Create a new project from a template located in the local file system.
     Local {
         /// Location of the template directory.
-        #[clap(value_parser)]
         path: Utf8PathBuf,
         #[clap(flatten)]
         flags: CreationFlags,
@@ -59,7 +55,7 @@ enum Command {
     /// Generate shell completions for cargo-hatch, writing them to the standard output.
     Completions {
         /// The shell type to generate completions for.
-        #[clap(value_parser, value_enum)]
+        #[clap(value_enum)]
         shell: Shell,
     },
 }
@@ -67,10 +63,9 @@ enum Command {
 #[derive(Args)]
 struct CreationFlags {
     /// Name of the new project, using the current working directory if omitted.
-    #[clap(value_parser)]
     name: Option<String>,
     /// Update all dependencies to the latest compatible version after project creation.
-    #[clap(short, long, action)]
+    #[clap(short, long)]
     update_deps: bool,
 }
 
