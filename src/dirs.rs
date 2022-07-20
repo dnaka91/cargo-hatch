@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use camino::{Utf8Path, Utf8PathBuf};
 use directories::ProjectDirs;
 
-/// Wrapper around [`directories_next::ProjectDirs`] that provides UTF8-safe paths.
+/// Wrapper around [`directories::ProjectDirs`] that provides UTF8-safe paths.
 pub struct Utf8ProjectDirs {
     cache_dir: Utf8PathBuf,
     config_dir: Utf8PathBuf,
