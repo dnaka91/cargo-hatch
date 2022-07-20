@@ -31,7 +31,6 @@ num-traits = "0.2.15"
 regex = "1.5.6"
 semver = "1.0.10"
 serde = { version = "1.0.137", features = ["derive"] }
-serde_with = { version = "1.14.0", default-features = false }
 tera = "1.16.0"
 thiserror = "1.0.31"
 toml = "0.5.9"

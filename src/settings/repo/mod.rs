@@ -11,6 +11,7 @@ use tera::Context as TeraContext;
 
 mod prompts;
 mod validators;
+mod de;
 
 #[derive(Deserialize)]
 pub struct RepoSettings {
@@ -70,7 +71,7 @@ pub enum StringValidator {
     Ident,
     Semver,
     SemverReq,
-    #[serde(with = "serde_with::rust::display_fromstr")]
+    #[serde(deserialize_with = "de::from_str")]
     Regex(Regex),
 }
 
