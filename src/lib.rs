@@ -4,7 +4,8 @@
 #![allow(
     clippy::missing_errors_doc,
     clippy::module_name_repetitions,
-    clippy::option_if_let_else
+    clippy::option_if_let_else,
+    clippy::implicit_hasher
 )]
 
 pub mod cargo;
