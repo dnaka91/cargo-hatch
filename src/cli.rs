@@ -10,7 +10,7 @@ use clap_complete::Shell;
 
 #[derive(Parser)]
 #[command(name = "cargo", bin_name = "cargo")]
-enum Opt {
+enum Cli {
     #[command(subcommand)]
     Hatch(Command),
 }
@@ -77,7 +77,7 @@ pub struct CreationFlags {
 
 #[must_use]
 pub fn parse() -> Command {
-    let Opt::Hatch(cmd) = Opt::parse();
+    let Cli::Hatch(cmd) = Cli::parse();
     cmd
 }
 
@@ -85,7 +85,7 @@ pub fn parse() -> Command {
 pub fn completions(shell: Shell) {
     clap_complete::generate(
         shell,
-        &mut Opt::command(),
+        &mut Cli::command(),
         env!("CARGO_PKG_NAME"),
         &mut io::stdout().lock(),
     );
@@ -119,4 +119,15 @@ pub fn manpages(dir: &Utf8Path) -> Result<()> {
     app.build();
 
     print(dir, &app)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Cli;
+
+    #[test]
+    fn verify_cli() {
+        use clap::CommandFactory;
+        Cli::command().debug_assert();
+    }
 }
