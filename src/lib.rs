@@ -8,6 +8,7 @@
 )]
 
 pub mod cargo;
+pub mod cli;
 pub mod dirs;
 pub mod repo;
 pub mod settings;
