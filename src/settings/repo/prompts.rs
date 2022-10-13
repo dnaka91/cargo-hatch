@@ -29,17 +29,17 @@ pub fn prompt_bool(description: &str, setting: BoolSetting) -> Result<bool> {
 
 #[allow(clippy::type_complexity)]
 pub fn prompt_string(description: &str, setting: StringSetting) -> Result<String> {
-    let validator: Box<dyn Fn(&str) -> Result<(), String>> = match setting.validator {
-        None => Box::new(validators::required),
-        Some(StringValidator::Crate) => Box::new(validators::krate),
-        Some(StringValidator::Ident) => Box::new(validators::ident),
-        Some(StringValidator::Semver) => Box::new(validators::semver),
-        Some(StringValidator::SemverReq) => Box::new(validators::semver_req),
-        Some(StringValidator::Regex(re)) => Box::new(validators::regex(re)),
-    };
-
-    let mut prompt = Text::new(description).with_validator(&*validator);
+    let mut prompt = Text::new(description);
     prompt.default = setting.default.as_deref();
+
+    let prompt = match setting.validator {
+        None => prompt.with_validator(validators::Required),
+        Some(StringValidator::Crate) => prompt.with_validator(validators::Krate),
+        Some(StringValidator::Ident) => prompt.with_validator(validators::Ident),
+        Some(StringValidator::Semver) => prompt.with_validator(validators::Semver),
+        Some(StringValidator::SemverReq) => prompt.with_validator(validators::SemverReq),
+        Some(StringValidator::Regex(re)) => prompt.with_validator(validators::Regex(re)),
+    };
 
     prompt.prompt().map_err(Into::into)
 }
@@ -52,10 +52,6 @@ pub fn prompt_number<T: Number>(description: &str, setting: NumberSetting<T>) ->
         }
     }
 
-    fn formatter<T: Number>(value: T) -> String {
-        value.to_string()
-    }
-
     let parser = |value: &str| parser(value, setting.min, setting.max);
     let placeholder = format!("{}..={}", setting.min, setting.max);
     let help_message = format!("Number in range {}..={}", setting.min, setting.max);
@@ -66,9 +62,7 @@ pub fn prompt_number<T: Number>(description: &str, setting: NumberSetting<T>) ->
         .with_help_message(&help_message)
         .with_error_message("Please type a valid number within range.");
 
-    if let Some(default) = setting.default {
-        prompt.default = Some((default, &formatter));
-    }
+    prompt.default = setting.default;
 
     prompt.prompt().map_err(Into::into)
 }

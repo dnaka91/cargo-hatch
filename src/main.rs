@@ -9,23 +9,19 @@ use cargo_hatch::{
     settings::{self, DefaultSetting},
     templates,
 };
-use clap::{AppSettings, Args, CommandFactory, Parser, Subcommand};
+use clap::{Args, CommandFactory, Parser, Subcommand};
 use clap_complete::Shell;
 use inquire::Confirm;
 
 #[derive(Parser)]
-#[clap(
-    about,
-    author,
-    version,
-    global_setting = AppSettings::DeriveDisplayOrder,
-)]
+#[command(name = "cargo", bin_name = "cargo")]
 enum Opt {
-    #[clap(subcommand)]
+    #[command(subcommand)]
     Hatch(Command),
 }
 
 #[derive(Subcommand)]
+#[command(about, author, version)]
 enum Command {
     /// Initialize a new template with a sample configuration.
     Init {
@@ -38,30 +34,30 @@ enum Command {
     New {
         /// Bookmark as defined in the global configuration.
         bookmark: String,
-        #[clap(flatten)]
+        #[command(flatten)]
         flags: CreationFlags,
     },
     /// Create a new project from a template located in a remote Git repository.
     Git {
         /// An optional sub-folder within the repository that contains the template.
-        #[clap(long)]
+        #[arg(long)]
         folder: Option<Utf8PathBuf>,
         /// HTTP or Git URL to the remote repository.
         url: String,
-        #[clap(flatten)]
+        #[command(flatten)]
         flags: CreationFlags,
     },
     /// Create a new project from a template located in the local file system.
     Local {
         /// Location of the template directory.
         path: Utf8PathBuf,
-        #[clap(flatten)]
+        #[command(flatten)]
         flags: CreationFlags,
     },
     /// Generate shell completions for cargo-hatch, writing them to the standard output.
     Completions {
         /// The shell type to generate completions for.
-        #[clap(value_enum)]
+        #[arg(value_enum)]
         shell: Shell,
     },
 }
@@ -71,7 +67,7 @@ struct CreationFlags {
     /// Name of the new project, using the current working directory if omitted.
     name: Option<String>,
     /// Update all dependencies to the latest compatible version after project creation.
-    #[clap(short, long)]
+    #[arg(short, long)]
     update_deps: bool,
 }
 
