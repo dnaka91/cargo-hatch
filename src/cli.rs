@@ -1,7 +1,11 @@
-use std::io;
+use std::{
+    fs::OpenOptions,
+    io::{self, Write},
+};
 
-use camino::Utf8PathBuf;
-use clap::{Args, CommandFactory, Parser, Subcommand};
+use anyhow::{ensure, Context, Result};
+use camino::{Utf8Path, Utf8PathBuf};
+use clap::{Args, CommandFactory, Parser, ValueHint};
 use clap_complete::Shell;
 
 #[derive(Parser)]
@@ -11,7 +15,7 @@ enum Opt {
     Hatch(Command),
 }
 
-#[derive(Subcommand)]
+#[derive(Parser)]
 #[command(about, author, version)]
 pub enum Command {
     /// Initialize a new template with a sample configuration.
@@ -41,15 +45,24 @@ pub enum Command {
     /// Create a new project from a template located in the local file system.
     Local {
         /// Location of the template directory.
+        #[arg(value_hint = ValueHint::DirPath)]
         path: Utf8PathBuf,
         #[command(flatten)]
         flags: CreationFlags,
     },
-    /// Generate shell completions for cargo-hatch, writing them to the standard output.
+    /// Generate auto-completion scripts for various shells.
     Completions {
-        /// The shell type to generate completions for.
+        /// Shell to generate an auto-completion script for.
         #[arg(value_enum)]
         shell: Shell,
+    },
+    /// Generate man pages into the given directory.
+    Manpages {
+        /// Target directory, that must already exist and be empty. If the any file with the same
+        /// name as any of the man pages already exist, it'll not be overwritten, but instead an
+        /// error be returned.
+        #[arg(value_hint = ValueHint::DirPath)]
+        dir: Utf8PathBuf,
     },
 }
 
@@ -68,6 +81,7 @@ pub fn parse() -> Command {
     cmd
 }
 
+/// Generate shell completions, written to the standard output.
 pub fn completions(shell: Shell) {
     clap_complete::generate(
         shell,
@@ -75,4 +89,34 @@ pub fn completions(shell: Shell) {
         env!("CARGO_PKG_NAME"),
         &mut io::stdout().lock(),
     );
+}
+
+/// Generate man pages in the target directory. The directory must already exist and none of the
+/// files exist, or an error is returned.
+pub fn manpages(dir: &Utf8Path) -> Result<()> {
+    fn print(dir: &Utf8Path, app: &clap::Command) -> Result<()> {
+        let name = app.get_display_name().unwrap_or_else(|| app.get_name());
+        let out = dir.join(format!("{name}.1"));
+        let mut out = OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&out)
+            .with_context(|| format!("the file `{out}` already exists"))?;
+
+        clap_mangen::Man::new(app.clone()).render(&mut out)?;
+        out.flush()?;
+
+        for sub in app.get_subcommands() {
+            print(dir, sub)?;
+        }
+
+        Ok(())
+    }
+
+    ensure!(dir.try_exists()?, "target directory doesn't exist");
+
+    let mut app = Command::command();
+    app.build();
+
+    print(dir, &app)
 }

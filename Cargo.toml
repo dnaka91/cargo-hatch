@@ -18,6 +18,7 @@ camino = { version = "1.1.1", features = ["serde1"] }
 check_keyword = "0.2.0"
 clap = { version = "4.0.14", features = ["derive"] }
 clap_complete = "4.0.2"
+clap_mangen = "0.2.2"
 crates-index = { version = "0.18.10", default-features = false }
 crossterm = "0.25.0"
 directories = "4.0.1"

@@ -106,6 +106,7 @@ fn main() -> Result<()> {
             println!("done!");
         }
         Command::Completions { shell } => cli::completions(shell),
+        Command::Manpages { dir } => cli::manpages(&dir)?,
     }
 
     Ok(())
