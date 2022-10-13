@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 use anyhow::Result;
 use camino::Utf8PathBuf;
@@ -26,6 +26,24 @@ pub struct Bookmark {
     pub repository: String,
     pub description: Option<String>,
     pub folder: Option<Utf8PathBuf>,
+    #[serde(default)]
+    pub defaults: HashMap<String, DefaultSetting>,
+}
+
+#[derive(Deserialize)]
+pub struct DefaultSetting {
+    pub value: DefaultValue,
+    pub skip_prompt: bool,
+}
+
+#[derive(Debug, Deserialize)]
+pub enum DefaultValue {
+    Bool(bool),
+    String(String),
+    Number(i64),
+    Float(f64),
+    List(String),
+    MultiList(HashSet<String>),
 }
 
 pub fn load(dirs: &Utf8ProjectDirs) -> Result<Settings> {

@@ -1,8 +1,14 @@
-use std::{convert::TryFrom, env, fs, io};
+use std::{collections::HashMap, convert::TryFrom, env, fs, io};
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use camino::{Utf8Path, Utf8PathBuf};
-use cargo_hatch::{cargo, dirs::Utf8ProjectDirs, repo, settings, templates};
+use cargo_hatch::{
+    cargo,
+    dirs::Utf8ProjectDirs,
+    repo,
+    settings::{self, DefaultSetting},
+    templates,
+};
 use clap::{AppSettings, Args, CommandFactory, Parser, Subcommand};
 use clap_complete::Shell;
 use inquire::Confirm;
@@ -101,10 +107,10 @@ fn main() -> Result<()> {
             }
         }
         Command::New { bookmark, flags } => {
-            let settings = settings::load_global(&dirs)?;
+            let mut settings = settings::load_global(&dirs)?;
             let bookmark = settings
                 .bookmarks
-                .get(&bookmark)
+                .remove(&bookmark)
                 .ok_or_else(|| anyhow!("bookmark with name `{}` unknown", bookmark))?;
 
             let mut path = if bookmark.repository.starts_with("git@")
@@ -136,7 +142,7 @@ fn main() -> Result<()> {
                 path.push(folder);
             }
 
-            generate_project(&path, flags)?;
+            generate_project(&path, flags, bookmark.defaults)?;
             println!("done!");
         }
         Command::Git { folder, url, flags } => {
@@ -155,11 +161,11 @@ fn main() -> Result<()> {
                 path.push(folder);
             }
 
-            generate_project(&path, flags)?;
+            generate_project(&path, flags, HashMap::new())?;
             println!("done!");
         }
         Command::Local { path, flags } => {
-            generate_project(&path, flags)?;
+            generate_project(&path, flags, HashMap::new())?;
             println!("done!");
         }
         Command::Completions { shell } => {
@@ -175,7 +181,11 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn generate_project(path: &Utf8Path, flags: CreationFlags) -> Result<()> {
+fn generate_project(
+    path: &Utf8Path,
+    flags: CreationFlags,
+    defaults: HashMap<String, DefaultSetting>,
+) -> Result<()> {
     let (name, target) = get_target_dir(flags.name).context("failed preparing target directory")?;
 
     let files = templates::collect_files(path).context("failed collecting files")?;
@@ -183,7 +193,8 @@ fn generate_project(path: &Utf8Path, flags: CreationFlags) -> Result<()> {
 
     let mut context =
         settings::new_context(&repo_settings, &name).context("failed creating context")?;
-    settings::fill_context(&mut context, repo_settings.args).context("failed filling context")?;
+    settings::fill_context(&mut context, repo_settings.args, defaults)
+        .context("failed filling context")?;
 
     let files = templates::filter_ignored(files, &context, repo_settings.ignore)?;
     templates::render(&files, &context, &target).context("failed rendering templates")?;

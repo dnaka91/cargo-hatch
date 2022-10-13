@@ -107,7 +107,7 @@ pub fn render(files: &[RepoFile], context: &TeraContext, target: &Utf8Path) -> R
         tera.add_template_files(
             files
                 .iter()
-                .filter_map(|f| f.template.then(|| (&f.path, Some(&f.name)))),
+                .filter_map(|f| f.template.then_some((&f.path, Some(&f.name)))),
         )
         .context("failed loading templates")?;
         tera

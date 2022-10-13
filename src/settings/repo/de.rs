@@ -30,7 +30,11 @@ where
     type Value = T;
 
     fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(formatter, "type {} in its text form", std::any::type_name::<T>())
+        write!(
+            formatter,
+            "type {} in its text form",
+            std::any::type_name::<T>()
+        )
     }
 
     fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
