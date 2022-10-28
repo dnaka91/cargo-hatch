@@ -22,7 +22,7 @@ pub fn get_string(default: DefaultSetting) -> Result<String> {
         Ok(value)
     } else {
         bail!(
-            "invalid default value for string setting ({:?}",
+            "invalid default value for string setting ({:?})",
             default.value
         )
     }
@@ -33,7 +33,7 @@ pub fn get_number(default: DefaultSetting) -> Result<i64> {
         Ok(value)
     } else {
         bail!(
-            "invalid default value for number setting ({:?}",
+            "invalid default value for number setting ({:?})",
             default.value
         )
     }
@@ -44,7 +44,7 @@ pub fn get_float(default: DefaultSetting) -> Result<f64> {
         Ok(value)
     } else {
         bail!(
-            "invalid default value for float setting ({:?}",
+            "invalid default value for float setting ({:?})",
             default.value
         )
     }
@@ -55,7 +55,7 @@ pub fn get_list(default: DefaultSetting) -> Result<String> {
         Ok(value)
     } else {
         bail!(
-            "invalid default value for list setting ({:?}",
+            "invalid default value for list setting ({:?})",
             default.value
         )
     }
@@ -66,7 +66,7 @@ pub fn get_multi_list(default: DefaultSetting) -> Result<HashSet<String>> {
         Ok(value)
     } else {
         bail!(
-            "invalid default value for multi-list setting ({:?}",
+            "invalid default value for multi-list setting ({:?})",
             default.value
         )
     }
