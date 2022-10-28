@@ -1,0 +1,12 @@
+crate_type = "bin"
+
+[want_order]
+type = "bool"
+description = "Would you like to order something?"
+default = true
+
+[order]
+type = "list"
+description = "Coffee or tea?"
+values = ["coffee", "tea"]
+condition = "{{ want_order }}"

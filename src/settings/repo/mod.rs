@@ -14,7 +14,7 @@ use indexmap::{IndexMap, IndexSet};
 use num_traits::Num;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use tera::Context as TeraContext;
+use tera::{Context as TeraContext, Tera};
 
 use super::global::DefaultSetting;
 
@@ -48,6 +48,7 @@ pub enum CrateType {
 #[derive(Deserialize)]
 pub struct RepoSetting {
     description: String,
+    condition: Option<String>,
     #[serde(flatten)]
     ty: SettingType,
 }
@@ -294,6 +295,15 @@ where
     H: BuildHasher,
 {
     for (name, setting) in args {
+        if let Some(condition) = setting.condition {
+            let result = Tera::one_off(&condition, ctx, false)?;
+            let active = result.trim().parse::<bool>()?;
+
+            if !active {
+                continue;
+            }
+        }
+
         match setting.ty {
             SettingType::Bool(value) => {
                 let value = run(

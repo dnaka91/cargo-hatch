@@ -230,6 +230,9 @@ Additional optional settings are:
 
 - `default`: Define a default value that is pre-selected when the user is prompted for input. The
   value must match the type of the argument.
+- `condition`: Tera template that is executed to determine whether this prompt is used. It is
+  filled with all the pre-defined and user-selected variables, same as the regular templates. It
+  must evaluate to either `true` or `false`. Arguments are collected top to bottom, so only user-selected variables that were already prompted for, are available.
 
 The `name` of each argument is its key in the settings file. See the following sub-sections for
 examples of how to define the arguments.

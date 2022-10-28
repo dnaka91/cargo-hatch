@@ -1,0 +1,5 @@
+{% if want_order %}
+The customer would like a {{ order }}.
+{% else %}
+Hm, no order.
+{% endif %}
