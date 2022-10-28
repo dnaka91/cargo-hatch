@@ -119,6 +119,9 @@ Additionally, the optional values fields are:
 - `folder`: A sub-folder within the repository for use with mono-repos that contain multiple
   templates. If this is set, only the sub-folder is used as template root, ignoring the rest of the
   repository.
+- `defaults`: Overrides for the template's own defaults. This allows to set differnt pre-selected
+  values for the arguments of the template. In addition, it allows to skip the prompt altogether,
+  and use the default value as input.
 
 For example:
 
@@ -127,6 +130,33 @@ For example:
 repository = "git@github.com:dnaka91/rust-server-template.git"
 description = "Basic template for a web-server using the `axum` crate"
 ```
+
+#### Default value overrides
+
+The above mentioned `defaults` fields allows to override a template's default selections for
+arguments, and skip them altogether as well. The setting is a mapping from argument name to its
+settings, and best configured as a separate table:
+
+```toml
+[bookmarks.server]
+# Same as above here, omitted for simplicity
+
+# Assuming there is a boolean prompt named `with_tracing` in the original
+# template, that we want to override with `true` and completely skip.
+[bookmarks.server.defaults]
+with_tracing = { value = { bool = true }, skip_prompt = true }
+```
+
+Each override requires exactly two fields:
+
+- `value`: The default value to use instead. It must match to the type of argument from the template settins:
+  - bool: `value = { bool = true }`
+  - string: `value = { string = "value" }`
+  - number: `value = { number = 10 }`
+  - float: `value = { float = 2.5 }`
+  - list: `value = { list = "one" }`
+  - multi_list: `value = { multi_list = ["one", "two"] }`
+- `skip_prompt`: Whether to skip the prompt and take the default value as input.
 
 ## Template configuration with `.hatch.toml`
 
@@ -221,8 +251,8 @@ Arguments are extra values that are queried from the user to render the template
 each individual template project. As the bare minimum, each argument must provide the following
 settings:
 
-- `type`: To define what kind of argument is used. One of `bool`, `string`, `number`, `float` or
-  `list`.
+- `type`: To define what kind of argument is used. One of `bool`, `string`, `number`, `float`,
+  `list` or `multi_list`.
 - `description`: Short description of the value being asked for and printed out to the user when
   being prompted for a value.
 
