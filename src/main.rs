@@ -127,7 +127,7 @@ fn generate_project(
     settings::fill_context(&mut context, repo_settings.args, defaults)
         .context("failed filling context")?;
 
-    let files = templates::filter_ignored(files, &context, repo_settings.ignore)?;
+    let files = templates::filter_ignored(files, &context, &repo_settings.ignore)?;
     templates::render(&files, &context, &target).context("failed rendering templates")?;
 
     if flags.update_deps {
