@@ -35,7 +35,7 @@ pub struct RepoSettings {
 #[derive(Deserialize)]
 pub struct FileIgnore {
     pub paths: Vec<Utf8PathBuf>,
-    pub condition: String,
+    pub condition: Option<String>,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

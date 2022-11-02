@@ -77,11 +77,13 @@ pub fn filter_ignored(
     let mut set = GlobSetBuilder::new();
 
     for rule in ignore {
-        let result = Tera::one_off(&rule.condition, context, false)?;
-        let active = result.trim().parse::<bool>()?;
+        if let Some(condition) = &rule.condition {
+            let result = Tera::one_off(condition, context, false)?;
+            let active = result.trim().parse::<bool>()?;
 
-        if !active {
-            continue;
+            if !active {
+                continue;
+            }
         }
 
         for path in rule.paths {
