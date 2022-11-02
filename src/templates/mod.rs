@@ -12,6 +12,8 @@ use tera::{Context as TeraContext, Tera};
 
 use crate::settings::FileIgnore;
 
+pub mod filter;
+
 pub struct RepoFile {
     path: Utf8PathBuf,
     name: Utf8PathBuf,
@@ -110,6 +112,7 @@ pub fn render(files: &[RepoFile], context: &TeraContext, target: &Utf8Path) -> R
                 .filter_map(|f| f.template.then_some((&f.path, Some(&f.name)))),
         )
         .context("failed loading templates")?;
+        filter::register_filters(&mut tera);
         tera
     };
 
