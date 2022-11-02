@@ -69,7 +69,11 @@ pub enum Command {
 #[derive(Args)]
 pub struct CreationFlags {
     /// Name of the new project, using the current working directory if omitted.
-    pub name: Option<String>,
+    ///
+    /// If the name contains slashes `/`, it is treated as a file path and the target directory is
+    /// created automatically if missing. The final project name will become the last part of the
+    /// path.
+    pub name: Option<Utf8PathBuf>,
     /// Update all dependencies to the latest compatible version after project creation.
     #[arg(short, long)]
     pub update_deps: bool,

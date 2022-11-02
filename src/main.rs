@@ -139,22 +139,19 @@ fn generate_project(
     Ok(())
 }
 
-fn get_target_dir(name: Option<String>) -> Result<(String, Utf8PathBuf)> {
+/// Locate the target directory, and ensure it is suitable for project generation.
+fn get_target_dir(name: Option<Utf8PathBuf>) -> Result<(String, Utf8PathBuf)> {
     let out = env::current_dir().context("failed getting current directory")?;
-    let out = Utf8PathBuf::try_from(out).context("current directory is not valid UTF-8")?;
+    let mut out = Utf8PathBuf::try_from(out).context("current directory is not valid UTF-8")?;
 
-    let (name, out) = match name {
-        Some(name) => {
-            let out = out.join(&name);
-            (name, out)
-        }
-        None => (
-            out.file_name()
-                .context("current directory can't be used as project name")?
-                .to_owned(),
-            out,
-        ),
-    };
+    if let Some(name) = name {
+        out.push(name);
+    }
+
+    let name = out
+        .file_name()
+        .context("directory can't be used as project name")?
+        .to_owned();
 
     ensure!(
         !out.exists() || out.is_dir(),
