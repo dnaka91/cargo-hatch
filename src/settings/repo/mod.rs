@@ -27,13 +27,13 @@ mod validators;
 pub struct RepoSettings {
     crate_type: Option<CrateType>,
     #[serde(default)]
-    pub ignore: Vec<FileIgnore>,
+    pub ignore: Vec<IgnorePattern>,
     #[serde(flatten)]
     pub args: IndexMap<String, RepoSetting>,
 }
 
 #[derive(Deserialize)]
-pub struct FileIgnore {
+pub struct IgnorePattern {
     pub paths: Vec<Utf8PathBuf>,
     pub condition: Option<String>,
 }

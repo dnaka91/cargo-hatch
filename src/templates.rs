@@ -16,7 +16,7 @@ use ignore::WalkBuilder;
 use mime_guess::mime;
 use tera::{Context as TeraContext, Tera};
 
-use crate::settings::FileIgnore;
+use crate::settings::IgnorePattern;
 
 /// A single file from a template repository, that shall be rendered into a target directory. If it
 /// is considered a template, it's processed through the [`Tera`] engine.
@@ -93,7 +93,7 @@ fn is_binary(path: &Utf8Path) -> bool {
 pub fn filter_ignored(
     files: Vec<RepoFile>,
     context: &TeraContext,
-    ignore: Vec<FileIgnore>,
+    ignore: Vec<IgnorePattern>,
 ) -> Result<Vec<RepoFile>> {
     let mut set = GlobSetBuilder::new();
 
