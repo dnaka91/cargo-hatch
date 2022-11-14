@@ -1,6 +1,6 @@
 [package]
 name = "cargo-hatch"
-version = "0.4.0"
+version = "0.4.1"
 authors = ["Dominik Nakamura <dnaka91@gmail.com>"]
 edition = "2021"
 rust-version = "1.62"
@@ -14,29 +14,29 @@ keywords = ["cargo", "cargo-subcommand", "cli", "crates", "template"]
 include = ["tests/**/*", "src/**/*", "LICENSE", "README.md"]
 
 [dependencies]
-anyhow = "1.0.65"
+anyhow = "1.0.66"
 camino = { version = "1.1.1", features = ["serde1"] }
 check_keyword = "0.2.0"
-clap = { version = "4.0.14", features = ["derive"] }
-clap_complete = "4.0.2"
-clap_mangen = "0.2.2"
-crates-index = { version = "0.18.10", default-features = false }
+clap = { version = "4.0.23", features = ["derive"] }
+clap_complete = "4.0.5"
+clap_mangen = "0.2.4"
+crates-index = { version = "0.18.11", default-features = false }
 crossterm = "0.25.0"
 directories = "4.0.1"
 git2 = "0.15.0"
 globset = "0.4.9"
 ignore = "0.4.18"
 indexmap = { version = "1.9.1", features = ["serde-1"] }
-inquire = "0.4.0"
+inquire = "0.5.2"
 mime_guess = "2.0.4"
 num-traits = "0.2.15"
-regex = "1.6.0"
+regex = "1.7.0"
 semver = "1.0.14"
-serde = { version = "1.0.145", features = ["derive"] }
+serde = { version = "1.0.147", features = ["derive"] }
 tera = "1.17.1"
 thiserror = "1.0.37"
 toml = "0.5.9"
-toml_edit = "0.14.4"
+toml_edit = "0.15.0"
 unicode-ident = "1.0.5"
 
 [dev-dependencies]
