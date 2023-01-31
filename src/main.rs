@@ -23,7 +23,7 @@ fn main() -> Result<()> {
                 cwd.push(name);
             }
 
-            println!("TODO! init at {}", cwd);
+            println!("TODO! init at {cwd}");
         }
         Command::List => {
             let settings = settings::load_global(&dirs)?;
@@ -36,10 +36,8 @@ fn main() -> Result<()> {
 
             for (name, info) in settings.bookmarks {
                 println!(
-                    "{:width$} - {}",
-                    name,
+                    "{name:width$} - {}",
                     info.description.as_deref().unwrap_or_default(),
-                    width = width,
                 );
             }
         }
@@ -48,7 +46,7 @@ fn main() -> Result<()> {
             let bookmark = settings
                 .bookmarks
                 .remove(&bookmark)
-                .ok_or_else(|| anyhow!("bookmark with name `{}` unknown", bookmark))?;
+                .ok_or_else(|| anyhow!("bookmark with name `{bookmark}` unknown"))?;
 
             let mut path = if bookmark.repository.starts_with("git@")
                 || bookmark.repository.starts_with("http:")

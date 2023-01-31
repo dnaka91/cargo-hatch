@@ -231,7 +231,7 @@ pub fn load(path: &Utf8Path) -> Result<RepoSettings> {
         .iter()
         .find_map(|(name, setting)| setting.validate().map(|error| (name, error)))
     {
-        bail!("invalid setting `{}`: {}", name, error);
+        bail!("invalid setting `{name}`: {error}");
     }
 
     Ok(settings)
@@ -255,7 +255,7 @@ pub fn new_context(settings: &RepoSettings, project_name: &str) -> Result<TeraCo
         .get_str("user.email")
         .context("failed getting email from git config")?;
 
-    ctx.try_insert("git_author", &format!("{} <{}>", name, email))
+    ctx.try_insert("git_author", &format!("{name} <{email}>"))
         .context("failed adding value to context")?;
     ctx.try_insert("git_name", &name)
         .context("failed adding value to context")?;
