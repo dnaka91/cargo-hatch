@@ -5,3 +5,14 @@ exceptions = [
     { allow = ["AGPL-3.0"], name = "cargo-hatch" },
     { allow = ["Unicode-DFS-2016"], name = "unicode-ident" },
 ]
+
+[bans]
+skip = [
+    { name = "aho-corasick", version = "0.7" },
+    { name = "crossterm", version = "0.25" },
+    { name = "hermit-abi", version = "0.2" },
+    { name = "redox_syscall", version = "0.2" },
+]
+skip-tree = [
+    { name = "windows-sys", version = "0.45.0", depth = 3 },
+]

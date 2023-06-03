@@ -70,7 +70,10 @@ fn main() -> Result<()> {
             {
                 Utf8PathBuf::from(&bookmark.repository)
             } else {
-                bail!("configured bookmark repository doesn't seem to be remote git repo URL nor a local machine folder");
+                bail!(
+                    "configured bookmark repository doesn't seem to be remote git repo URL nor a \
+                     local machine folder"
+                );
             };
 
             if let Some(folder) = &bookmark.folder {

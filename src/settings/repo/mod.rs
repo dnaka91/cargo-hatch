@@ -224,7 +224,8 @@ impl RepoSetting {
 
 pub fn load(path: &Utf8Path) -> Result<RepoSettings> {
     let buf = fs::read(path.join(".hatch.toml")).context("failed reading hatch config file")?;
-    let settings = toml::from_slice::<RepoSettings>(&buf).context("invalid hatch settings")?;
+    let settings =
+        basic_toml::from_slice::<RepoSettings>(&buf).context("invalid hatch settings")?;
 
     if let Some((name, error)) = settings
         .args

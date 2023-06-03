@@ -14,34 +14,34 @@ keywords = ["cargo", "cargo-subcommand", "cli", "crates", "template"]
 include = ["tests/**/*", "src/**/*", "LICENSE", "README.md"]
 
 [dependencies]
-anyhow = "1.0.66"
-camino = { version = "1.1.1", features = ["serde1"] }
+anyhow = "1.0.71"
+basic-toml = "0.1.2"
+camino = { version = "1.1.4", features = ["serde1"] }
 check_keyword = "0.2.0"
-clap = { version = "4.0.23", features = ["derive"] }
-clap_complete = "4.0.5"
-clap_mangen = "0.2.4"
-crates-index = { version = "0.18.11", default-features = false }
-crossterm = "0.25.0"
-directories = "4.0.1"
-git2 = "0.15.0"
-globset = "0.4.9"
-ignore = "0.4.18"
-indexmap = { version = "1.9.1", features = ["serde-1"] }
-inquire = "0.5.2"
+clap = { version = "4.0.32", features = ["derive"] }
+clap_complete = "4.0.7"
+clap_mangen = "0.2.6"
+crates-index = { version = "0.19.10", default-features = false }
+crossterm = "0.26.1"
+directories = "5.0.1"
+git2 = "0.17.2"
+globset = "0.4.10"
+ignore = "0.4.20"
+indexmap = { version = "1.9.3", features = ["serde-1"] }
+inquire = "0.6.2"
 mime_guess = "2.0.4"
 num-traits = "0.2.15"
-regex = "1.7.0"
-semver = "1.0.14"
-serde = { version = "1.0.147", features = ["derive"] }
-tera = "1.17.1"
-thiserror = "1.0.37"
-toml = "0.5.9"
-toml_edit = "0.15.0"
-unicode-ident = "1.0.5"
+regex = "1.8.3"
+semver = "1.0.17"
+serde = { version = "1.0.163", features = ["derive"] }
+tera = "1.19.0"
+thiserror = "1.0.40"
+toml_edit = "0.19.8"
+unicode-ident = "1.0.9"
 
 [dev-dependencies]
 dir-diff = "0.3.2"
-tempfile = "3.3.0"
+tempfile = "3.5.0"
 
 [profile.release]
 lto = true

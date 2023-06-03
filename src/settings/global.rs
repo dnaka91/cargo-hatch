@@ -54,7 +54,7 @@ pub enum DefaultValue {
 
 pub fn load(dirs: &Utf8ProjectDirs) -> Result<Settings> {
     let buf = std::fs::read(dirs.config_dir().join("settings.toml"))?;
-    toml::from_slice(&buf).map_err(Into::into)
+    basic_toml::from_slice(&buf).map_err(Into::into)
 }
 
 #[cfg(test)]
@@ -147,7 +147,7 @@ mod tests {
             update_deps: true,
         };
 
-        let result = toml::from_str::<Settings>(raw);
+        let result = basic_toml::from_str::<Settings>(raw);
         assert_eq!(expect, result.unwrap());
     }
 }
