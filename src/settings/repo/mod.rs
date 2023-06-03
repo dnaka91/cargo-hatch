@@ -36,6 +36,22 @@ pub struct RepoSettings {
 pub struct IgnorePattern {
     pub paths: Vec<Utf8PathBuf>,
     pub condition: Option<String>,
+    #[serde(default)]
+    pub ignore_from: IgnoreFrom,
+}
+
+#[derive(Clone, Copy, Default, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum IgnoreFrom {
+    #[default]
+    /// Completely omit the file
+    All,
+    /// Don't add to the template set
+    Template,
+    /// Don't render as template, but add to the template set
+    ///
+    /// Does not appear in target dir
+    Render,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
