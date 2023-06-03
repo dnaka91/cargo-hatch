@@ -1,6 +1,6 @@
 [package]
 name = "cargo-hatch"
-version = "0.4.1"
+version = "0.4.2"
 authors = ["Dominik Nakamura <dnaka91@gmail.com>"]
 edition = "2021"
 rust-version = "1.62"
