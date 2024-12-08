@@ -1,6 +1,6 @@
 [package]
 name = "cargo-hatch"
-version = "0.4.2"
+version = "0.4.3"
 authors = ["Dominik Nakamura <dnaka91@gmail.com>"]
 edition = "2021"
 rust-version = "1.62"
@@ -12,6 +12,9 @@ repository = "https://github.com/dnaka91/cargo-hatch"
 categories = ["development-tools", "development-tools::cargo-plugins"]
 keywords = ["cargo", "cargo-subcommand", "cli", "crates", "template"]
 include = ["tests/**/*", "src/**/*", "LICENSE", "README.md"]
+
+[badges.maintenance]
+status = "deprecated"
 
 [dependencies]
 anyhow = "1.0.71"
